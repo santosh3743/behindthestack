@@ -72,6 +72,6 @@ describe.skipIf(!CONTENT_BANNED)('content never leaks private details', () => {
     it(`${f} is clean`, () => expect(readFileSync(`${dir}/${f}`, 'utf8')).not.toMatch(banned));
   }
   for (const f of files) {
-    it(`${f} is still a draft`, () => expect(readFileSync(`${dir}/${f}`, 'utf8')).toMatch(/^status: draft$/m));
+    it(`${f} is live (approved 2026-10-09)`, () => expect(readFileSync(`${dir}/${f}`, 'utf8')).toMatch(/^status: live$/m));
   }
 });
