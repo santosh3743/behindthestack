@@ -1,4 +1,4 @@
-const STAGE = matchMedia('(min-width: 901px)');
+const STAGE = matchMedia('(min-width: 901px) and (min-height: 700px)');
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const E = 'cubic-bezier(.6,0,.2,1)';
 const OUT_E = 'cubic-bezier(.5,0,.75,0)';
@@ -131,9 +131,11 @@ function fitWordmark() {
 
 function init() {
   fitWordmark();
+  document.fonts.ready.then(fitWordmark);
   addEventListener('resize', fitWordmark);
   STAGE.addEventListener('change', () => location.reload());
   if (!STAGE.matches) return; // flowing layout: anchors and native scroll do the work
+  root.classList.add('stage-on'); // CSS hides sheets only once this script is running
   document.querySelectorAll<HTMLElement | SVGElement>('[data-go]').forEach((a) => a.addEventListener('click', (e) => {
     if (location.pathname !== '/') return; // header links from other pages navigate normally
     e.preventDefault(); const n = Number(a.dataset.go); history.replaceState(null, '', n ? `#s${n}` : '/'); goTo(n);
@@ -149,4 +151,4 @@ function init() {
   show(h ?? indexFromScroll(), true);
 }
 
-document.fonts.ready.then(init);
+init();

@@ -28,7 +28,7 @@
 .slab:hover .top,.slab:focus-visible .top{fill:#dfe6ff}
 
 .end .main{align-content:center;gap:28px}
-.endwm{display:inline-block;font-weight:900;font-size:17vw;line-height:.8;letter-spacing:-.07em;white-space:nowrap}
+.endwm{display:inline-block;font-weight:900;font-size:12.4vw;line-height:.8;letter-spacing:-.07em;white-space:nowrap}
 .endwm span{display:inline-block}
 .endrow{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:end;border-top:1px solid var(--ink);padding-top:16px;font-family:var(--mono);font-size:12px}
 
@@ -39,14 +39,26 @@
   .fig{height:100%}
   .fig svg{flex:1;min-height:0;max-height:none}
   .big{font-size:52vh}
-  .endwm{font-size:12vw}
-  html.js:has(body.home){scroll-snap-type:y mandatory}
-  .js .track{display:block}
-  .js .track .snap{height:100vh;scroll-snap-align:start}
-  .js .rail{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:2px;padding-left:14px}
-  .js .rail a{font-family:var(--mono);font-size:10px;color:var(--faint);padding:6px 8px;border-left:2px solid transparent;transition:color .3s,border-color .3s}
-  .js .rail a.on{color:var(--ink);border-color:var(--accent)}
-  .js .stage{position:fixed;top:var(--hh);left:0;right:0;bottom:0;margin:0;overflow:hidden}
-  .js .scene{position:absolute;inset:0;min-height:0;grid-template-rows:38px 1fr 46px;visibility:hidden}
-  .js .scene.show{visibility:visible}
+  .endwm{font-size:11.5vw}
+  html.stage-on:has(body.home){scroll-snap-type:y mandatory}
+  .stage-on .track{display:block}
+  .stage-on .track .snap{height:100vh;scroll-snap-align:start}
+  .stage-on .rail{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:2px;padding-left:14px}
+  .stage-on .rail a{font-family:var(--mono);font-size:10px;color:var(--muted);padding:6px 8px;border-left:2px solid transparent;transition:color .3s,border-color .3s}
+  .stage-on .rail a.on{color:var(--ink);border-color:var(--accent)}
+  .stage-on .stage{position:fixed;top:var(--hh);left:0;right:0;bottom:0;margin:0;overflow:hidden}
+  .stage-on .scene{position:absolute;inset:0;min-height:0;grid-template-rows:38px 1fr 46px;visibility:hidden}
+  .stage-on .scene.show{visibility:visible}
+}
+
+/* stage mode on shorter screens: tighten type so every sheet fits */
+@media (min-width:901px) and (max-height:880px){
+  .stage-on .copy h1{font-size:min(var(--t-xxl),10vh);margin:14px 0 16px}
+  .stage-on .copy h2{font-size:min(var(--t-xl),5.6vh);margin:12px 0 10px}
+  .stage-on .copy p{margin-bottom:14px;font-size:16px}
+  .stage-on .part h3{font-size:26px;margin:4px 0 6px}
+  .stage-on .part p{margin-bottom:10px}
+  .stage-on .list a{padding:8px 0}
+  .stage-on .bom div{padding:6px 0}
+  .stage-on .spec{gap:4px 24px;padding-top:10px}
 }
