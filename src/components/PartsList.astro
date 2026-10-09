@@ -1,0 +1,7 @@
+---
+import type { Part } from '../data/layers';
+interface Props { parts: Part[] }
+const { parts } = Astro.props;
+---
+<div class="bomh">parts list</div>
+<div class="bom">{parts.map((p) => <div><span>{p.code}</span><span>{p.name}</span><span>{p.state}</span></div>)}</div>

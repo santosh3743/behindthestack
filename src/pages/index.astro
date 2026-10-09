@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import Sheet from '../components/Sheet.astro';
+import LayerSheet from '../components/LayerSheet.astro';
+import Fig00Stack from '../components/figures/Fig00Stack.astro';
+import { LAYERS } from '../data/layers';
+import { SITE, LINKS } from '../data/site';
+import { getLab, labForLayer } from '../lib/lab';
+import '../styles/home.css';
+
+const lab = await getLab();
+const TOTAL = LAYERS.length + 2; // contents + layers + end
+const next = (i: number) => (i < LAYERS.length - 1 ? `${LAYERS[i + 1].n} ${LAYERS[i + 1].name}` : 'end of manual');
+---
+<Base footer={false} bodyClass="home">
+  <nav class="rail" aria-label="sheets">
+    <a href="/#s0" data-go="0">00</a>
+    {LAYERS.map((l, i) => <a href={`/#s${i + 1}`} data-go={i + 1}>{l.n}</a>)}
+    <a href="/#s5" data-go="5">end</a>
+  </nav>
+  <div class="track" aria-hidden="true">{Array.from({ length: TOTAL }, () => <div class="snap" />)}</div>
+
+  <main class="stage" id="content">
+    <Sheet index={0} total={TOTAL} out="explode" big="00"
+      topLeft={`${SITE.name} / field manual`} topRight="sheet 00 of 04 · contents"
+      bottomLeft="scroll ↓ to take it apart" bottomRight={`rev ${SITE.rev}`}>
+      <Fragment slot="copy">
+        <div data-a><span class="tag">00</span><span class="mono">an open lab</span></div>
+        <h1 data-h>{SITE.tagline}</h1>
+        <p data-a>{SITE.lede}</p>
+        <dl class="spec" data-a>
+          <dt>layers</dt><dd>04</dd>
+          <dt>experiments</dt><dd>{String(lab.length).padStart(2, '0')}</dd>
+          <dt>flagship</dt><dd>stackhealth.dev</dd>
+          <dt>rev</dt><dd>{SITE.rev}</dd>
+        </dl>
+      </Fragment>
+      <div class="fig" slot="fig">
+        <Fig00Stack />
+        <div class="cap"><span>fig. 00 — the stack, exploded view</span><span>click a part</span></div>
+      </div>
+    </Sheet>
+
+    {LAYERS.map((layer, i) => (
+      <LayerSheet layer={layer} entries={labForLayer(lab, layer.id)} index={i + 1} total={TOTAL} nextLabel={next(i)} />
+    ))}
+
+    <Sheet index={TOTAL - 1} total={TOTAL} out="scatter" big="fin" extraClass="end"
+      topLeft="end of manual" topRight={`${SITE.name} · rev ${SITE.rev}`}
+      bottomLeft="↑ back to sheet 00" bottomRight="∎">
+      <Fragment slot="copy">
+        <div data-a><span class="tag">∎</span><span class="mono">that's the whole stack, for now.</span></div>
+        <div class="endwm" data-h aria-label={SITE.name}>{SITE.name}</div>
+        <div class="endrow" data-a>
+          <span>{SITE.credit}</span>
+          <span class="links">{LINKS.map((l) => <a href={l.href}>{l.label}</a>)}</span>
+        </div>
+      </Fragment>
+    </Sheet>
+  </main>
+  <script>import '../scripts/sheets.ts';</script>
+</Base>

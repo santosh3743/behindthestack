@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getLab, type LabEntry } from '../../lib/lab';
+import { neighbors, partNumber } from '../../lib/lab-utils';
+import { getLayer } from '../../data/layers';
+import { SITE } from '../../data/site';
+import '../../styles/article.css';
+
+export async function getStaticPaths() {
+  const lab = await getLab();
+  return lab.map((entry) => ({ params: { id: entry.id }, props: { entry, lab } }));
+}
+interface Props { entry: LabEntry; lab: LabEntry[] }
+const { entry, lab } = Astro.props;
+const { Content } = await render(entry);
+const layer = getLayer(entry.data.layer);
+const { prev, next } = neighbors(lab, entry.id);
+const date = entry.data.published.toISOString().slice(0, 10);
+---
+<Base title={entry.data.title} description={entry.data.dek}>
+  <main class="art" id="content">
+    <header class="art-head">
+      <div><span class="tag">{partNumber(layer.n, entry.data.order)}</span><span class="mono">{layer.name}</span></div>
+      <h1>{entry.data.title}</h1>
+      <p class="dek">{entry.data.dek}</p>
+      <div class="art-spec">
+        <span>layer <b>{layer.name}</b></span><span>track <b>{entry.data.track}</b></span>
+        <span>read <b>{entry.data.readMinutes} min</b></span><span>published <b>{date}</b></span>
+        <span>status <b>{entry.data.status}</b></span>
+        {entry.data.external && <a class="go" href={entry.data.external}>{new URL(entry.data.external).host} ↗</a>}
+      </div>
+    </header>
+    <article class="prose"><Content /></article>
+    <nav class="art-foot" aria-label="more on this layer">
+      <span>{prev && <a href={`/lab/${prev.id}/`}>← {partNumber(layer.n, prev.data.order)} {prev.data.title}</a>}</span>
+      <span class="r">{next && <a href={`/lab/${next.id}/`}>{partNumber(layer.n, next.data.order)} {next.data.title} →</a>}</span>
+      <span class="all"><a href={`/layers/${layer.id}/`}>all of layer {layer.n}</a> · <a href={SITE.newsletter}>get new notes by email ↗</a></span>
+    </nav>
+  </main>
+</Base>

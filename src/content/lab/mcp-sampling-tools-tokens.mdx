@@ -1,0 +1,54 @@
+---
+title: "MCP: sampling, tools, and who owns the token"
+dek: Wiring an agent to a helpdesk's MCP server. Three traps, each worth an afternoon.
+layer: agents
+track: ai-agents
+order: 2
+published: 2026-10-09
+readMinutes: 3
+status: draft
+---
+
+## What was built
+
+The same self-hosted agent from [02.1](/lab/self-hosted-assistant/), connected to a helpdesk through the vendor's own first-party MCP server. The vendor console hands you a streamable-HTTP URL. Auth is OAuth 2.1 with PKCE and dynamic client registration. The server exposes **295 tools**.
+
+Two hundred and ninety-five tool schemas don't fit in every prompt, so the agent uses tool search: the model asks for tools by intent and only the matches are loaded. That part worked first time. Nothing else did.
+
+## What broke
+
+### ① A capability the server didn't recognise
+
+During the MCP `initialize` handshake, the agent advertised that it supports sampling with tools. The vendor's server, built on a strict Java SDK, rejected the unknown field with `-32603 "Unrecognized field tools"`. The agent didn't treat that as fatal. It waited, and hit a **40-second** connect timeout.
+
+The fix was one line of config: disable sampling for that server, so the client sends only the minimal capabilities. Strict servers and permissive clients disagree about what "optional" means.
+
+### ② The token owned by the wrong user
+
+The agent runs in a container as an unprivileged user. The login command was run with `docker exec`, which defaults to root. So the OAuth token file was written by root with `0600` permissions, and the agent couldn't read its own credentials. Every restart asked to reauthorize.
+
+The rule: run the login as the same user that will read the token. If it already happened, `chown` the token directory back.
+
+### ③ The refresh that deleted the refresh token
+
+After fixing ②, auth still broke about **once an hour**.
+
+Under the OAuth spec (RFC 6749 §6), a server *may* omit the refresh token when you use it, meaning "keep the one you have". This server did. The client library overwrote the stored token file with the new response, which had no refresh token. After the first hourly refresh there was nothing left to refresh with.
+
+The patch carries the old refresh token over when the response doesn't include one. It's a one-line change in the framework's token storage. It lives in the container image, so it has to be reapplied after every image update.
+
+## The fourth trap: the agent remembered the outage
+
+While auth was broken, the agent's self-improvement step wrote itself a workaround skill: hand-rolled JSON-RPC calls against the token files. It gated that skill on "the MCP tools are not in this session".
+
+With tool search on, the tools are *never* in the prompt until searched. So the condition was true on almost every turn, and the agent kept writing code instead of calling the server, long after auth was fixed. The fix was to gate the fallback on a real connection failure, not on the tool being absent from the prompt.
+
+## The number
+
+**295** tools, of which any single request needs two or three. The tool count is why search exists, and search is why the stale workaround kept firing.
+
+## What I'd do again
+
+- Read the handshake. Most MCP integration failures happen before the first tool call.
+- Know which user writes and which user reads every credential file.
+- After an outage, check what the agent taught itself while it was down.

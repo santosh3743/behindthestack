@@ -1,0 +1,36 @@
+---
+const PK = ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'];
+---
+<svg viewBox="0 0 820 540" fill="none" font-family="Martian Mono, monospace" font-size="11" aria-hidden="true">
+        <defs><marker id="arA" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8" stroke="var(--line)" stroke-width="1.2"/></marker></defs>
+        <g stroke="var(--line)" stroke-width="1.1">
+          <rect x="30" y="226" width="124" height="64"/>
+          <circle cx="420" cy="258" r="92" stroke-dasharray="5 5"/><circle cx="420" cy="258" r="56" stroke="var(--ink)"/>
+          <rect x="360" y="30" width="120" height="58"/>
+          <rect x="650" y="126" width="140" height="50"/><rect x="650" y="234" width="140" height="50"/><rect x="650" y="342" width="140" height="50"/>
+          <circle cx="350" cy="462" r="7"/><circle cx="400" cy="446" r="5"/><circle cx="440" cy="480" r="8"/><circle cx="492" cy="456" r="5"/><circle cx="390" cy="500" r="4"/>
+          <path d="M350 462L400 446L440 480L492 456M400 446L440 480M350 462L390 500L440 480"/>
+          <path id="a1" d="M154 258H328" marker-end="url(#arA)"/><path id="a2" d="M420 166V88" marker-end="url(#arA)"/>
+          <path id="a3" d="M500 216C570 196 600 156 650 151" marker-end="url(#arA)"/><path id="a4" d="M512 258H650" marker-end="url(#arA)"/>
+          <path id="a5" d="M500 302C570 322 600 362 650 367" marker-end="url(#arA)"/><path id="a6" d="M420 350V428" marker-end="url(#arA)"/>
+        </g>
+        <g fill="var(--muted)"><text x="42" y="250">channel</text><text x="372" y="52">model</text><text x="650" y="114">tools</text><text x="330" y="418">memory · knowledge graph</text><text x="352" y="156">plan → act → observe</text></g>
+        <g fill="var(--ink)"><text x="42" y="272">chat</text><text x="372" y="72">llm</text><text x="388" y="254" font-weight="500">agent</text><text x="662" y="156">mcp server</text><text x="662" y="264">web search</text><text x="662" y="372">files</text></g>
+        <text x="382" y="272" fill="var(--muted)">loop × n</text>
+        <path d="M300 108V122M540 108V122M300 115H540" stroke="var(--accent)"/><text x="350" y="104" fill="var(--accent)">context ≤ 64,000 tok</text>
+        <circle cx="578" cy="58" r="11" fill="var(--ink)"/><text x="574.5" y="62" fill="var(--bg)">1</text><path d="M567 60H480" stroke="var(--ink)"/>
+        <text x="596" y="54" fill="var(--ink)">empty reply,</text><text x="596" y="68" fill="var(--ink)">no error raised</text>
+        <circle cx="616" cy="452" r="11" fill="var(--ink)"/><text x="612.5" y="456" fill="var(--bg)">2</text><path d="M605 452L500 456" stroke="var(--ink)"/>
+        <text x="634" y="448" fill="var(--ink)">mcp token owned</text><text x="634" y="462" fill="var(--ink)">by the wrong user</text>
+        <circle cx="84" cy="352" r="11" fill="var(--ink)"/><text x="80.5" y="356" fill="var(--bg)">3</text><path d="M84 341V290" stroke="var(--ink)"/>
+        <text x="30" y="382" fill="var(--ink)">two deployments,</text><text x="30" y="396" fill="var(--ink)">one bot token</text>
+        <g class="pk">
+          {PK.map((id, i) => (
+            <circle r="3.5" class="pkt">
+              <animateMotion dur={`${(2.2 + i * 0.4).toFixed(1)}s`} begin={`${(i * 0.45).toFixed(2)}s`} repeatCount="indefinite">
+                <mpath href={`#${id}`} />
+              </animateMotion>
+            </circle>
+          ))}
+        </g>
+      </svg>

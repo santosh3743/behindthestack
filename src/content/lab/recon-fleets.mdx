@@ -1,0 +1,51 @@
+---
+title: Recon fleets before building anything
+dek: Parallel agents that check the docs and the telemetry against reality before a line of new code.
+layer: agents
+track: ai-agents
+order: 3
+published: 2026-10-09
+readMinutes: 3
+status: draft
+---
+
+## What was built
+
+Not a product. A habit: before building on top of a system, send a small fleet of agents to find out what the system actually is. Each agent gets one narrow question and read-only access. They run in parallel and report back facts, not plans.
+
+It was used twice in one week.
+
+## Run 1: are the docs still true?
+
+A help-centre article needed writing about a feature that had changed. Rather than write one article, a fleet checked **every** existing article against the current codebase and the last two months of shipped changes. Some agents took one product area, some took another.
+
+What it found was the usual drift: steps that referenced screens that had moved, and behaviour described the way it worked before a release. None of it was dramatic. All of it would have reached a customer.
+
+What broke was the fleet itself. Several agents failed repeatedly on certificate verification errors talking to the network and had to be restarted through the day. A fleet multiplies flaky infrastructure as well as throughput.
+
+## Run 2: what is the telemetry actually saying?
+
+The goal was to build performance dashboards on a self-hosted observability stack. Instead of designing dashboards from assumptions, four recon agents went first:
+
+1. **Latency:** p50, p95 and p99 per service.
+2. **Dashboard schema:** what the dashboard API accepts.
+3. **Logs:** volume and sources.
+4. **Database spans:** where queries spend time.
+
+They came back with three things nobody had in their head:
+
+- One API's **p99 was 8.5 seconds**. That looked like a fire. It was a streaming endpoint doing LLM extraction, where a long tail is the design. A dashboard built on assumptions would have alerted on it forever.
+- Log volume was **41.9k lines a minute**, and **99.9%** of it came from a single service. Every other service's logs were noise around one firehose.
+- The dashboard-create API does **no server-side schema validation**. It accepts any JSON. A malformed dashboard would save successfully and fail later, in the browser.
+
+The dashboards that got built excluded health checks, filtered per service and treated the streaming endpoint separately. None of those choices were in the original plan.
+
+## The number
+
+**99.9%**. When one source is nearly all of your data, every average you compute is that source's average.
+
+## What I'd do again
+
+- Give each recon agent one question and no write access. Narrow agents report facts. Broad agents report opinions.
+- Run recon before design, not after the first surprise.
+- Budget for the fleet's own failures. Parallel agents fail in parallel.

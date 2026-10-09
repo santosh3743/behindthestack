@@ -1,0 +1,12 @@
+---
+import type { LayerId } from '../../data/layers';
+import Fig01Interface from './Fig01Interface.astro';
+import Fig02Agents from './Fig02Agents.astro';
+import Fig03Code from './Fig03Code.astro';
+import Fig04Infra from './Fig04Infra.astro';
+interface Props { id: LayerId }
+const { id } = Astro.props;
+const FIGS = { interface: Fig01Interface, agents: Fig02Agents, code: Fig03Code, infra: Fig04Infra } as const;
+const Fig = FIGS[id];
+---
+<Fig />

@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, LINKS } from '../data/site';
+import '../styles/article.css';
+---
+<Base title="about" description="What behindthestack is, and who builds it.">
+  <main class="art" id="content">
+    <header class="art-head">
+      <div><span class="tag">ab</span><span class="mono">about</span></div>
+      <h1>A lab notebook for the layers nobody screenshots.</h1>
+      <p class="dek">behindthestack is where experiments get written down: agents, code health, the infrastructure underneath.</p>
+    </header>
+    <div class="prose">
+      <p>Most of what runs a product never shows up in a demo. Agents that fail without an error. Scores that depend on who wrote the formula. Tunnels that collide because two apps shared a token.</p>
+      <p>Each note here covers one thing that was built, what broke, and the number that came out of it. The site is organised by layer of the stack, from the interface down to the host, so you can see where each problem lives.</p>
+      <p>Everything is written from real builds. Details that identify people, customers or systems are removed.</p>
+      <p>{SITE.credit}. New notes go out on the <a href={SITE.newsletter}>newsletter</a> and the <a href="/rss.xml">RSS feed</a>.</p>
+    </div>
+    <div class="art-foot"><span class="all links">{LINKS.map((l) => <a href={l.href}>{l.label}</a>)}</span></div>
+  </main>
+</Base>

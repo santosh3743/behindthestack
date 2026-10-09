@@ -1,0 +1,54 @@
+---
+title: A public Q&A bot, deployed twice by accident
+dek: Answering questions in public, and two deployments fighting over one bot token.
+layer: agents
+track: ai-agents
+order: 4
+published: 2026-10-09
+readMinutes: 3
+status: draft
+---
+
+## What was built
+
+A public chat bot that answers questions about one person, using only a written public profile. It has no email, calendar or private tools. It long-polls the chat platform for messages, sends each one to a hosted model with a strict system prompt, the profile and the last **8** turns, and replies.
+
+Every reply ends with a hidden line the bot strips before sending. The line says whether the message was worth flagging. Flagged messages get logged and forwarded privately.
+
+Later it grew tiers. Visitors can register as one of **7** audiences, and an approved tier gets extra context. It also got a cost guard: a daily spend cap, **$1** by default, after which visitors are asked to come back later.
+
+## What broke
+
+### ③ Two deployments, one bot token
+
+The bot was first set up as a background service on the host, then moved into a container. The old service wasn't fully retired.
+
+A chat platform's bot API allows exactly one long-polling consumer per token. A second one gets a **409 Conflict**, and the two pollers take turns stealing updates. Messages go missing, without any error the user can see.
+
+The same rule bit a second time from a different direction. The bot's admin approvals had to go through its *own* token. Polling the private assistant's token from this bot, even briefly, would have knocked that assistant offline with the same 409.
+
+The fix is boring: one token, one poller, and a written note of which deployment is canonical.
+
+### Up is not the same as healthy
+
+Later the container showed as running, and the bot served nobody. Every poll failed to resolve the platform's API hostname. The container had lost DNS after a network cleanup on the host. The process was alive, the health check said "up", and every request failed.
+
+A health check that only asks "is the process alive" will tell you that right up until users notice.
+
+### Group chats only hear what's addressed to them
+
+In group chats the bot has privacy mode on. It receives commands addressed to it by name, replies to its own messages, and real tap-mentions. A typed `@name` that isn't a tap-mention never arrives, and neither does a bare `/command`. Nothing fails. The message just never comes.
+
+## The design choice that held
+
+Tiers are enforced by **what goes into the prompt**, not by instructions in it. A lower tier's prompt never contains a higher tier's text, so no jailbreak can leak what isn't there. Tests check the assembled prompt for every tier.
+
+## The number
+
+**409**. One status code explained three separate "the bot is ignoring me" reports.
+
+## What I'd do again
+
+- Retire old deployments in writing, not just in practice.
+- Health-check the dependency, not the process.
+- Enforce access by context composition. Never ask the model to keep a secret it can see.

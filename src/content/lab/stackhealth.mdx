@@ -1,0 +1,40 @@
+---
+title: StackHealth
+dek: An open code-health benchmark with a formula you can read.
+layer: code
+track: code-health
+order: 1
+published: 2026-10-09
+readMinutes: 2
+status: draft
+external: https://stackhealth.dev
+spec:
+  - ["inputs", "any public github repo"]
+  - ["outputs", "security · quality · hygiene · community"]
+  - ["formula", "open, versioned"]
+  - ["cost", "free"]
+---
+
+StackHealth scores any public GitHub repository on four things: **security, quality, hygiene and community**. The result is a letter grade backed by seven engines, and a report you can share.
+
+The interaction is one edit. Take a repo URL and replace `github.com` with `stackhealth.dev`:
+
+```
+github.com/pallets/click   →   stackhealth.dev/pallets/click
+```
+
+Within about 30–90 seconds you get the grade.
+
+## Why the formula is open
+
+Most code-quality scores are a number from a box. You can't argue with them, because you can't see them. StackHealth publishes every weight, every threshold and every engine output, and versions the formula. If you disagree with a score, you can point at the line that produced it.
+
+The goal is what Lighthouse did for websites: a public, reproducible rating that maintainers and adopters can both point at.
+
+## Three ways in
+
+- **Browser:** paste a URL at [stackhealth.dev](https://stackhealth.dev), or edit the address bar.
+- **Terminal:** `npx stackhealth owner/repo`. It's pipe-friendly with `--json` and fails CI with `--min-grade`.
+- **Pull requests:** a GitHub Action posts the base grade against the PR grade on every PR.
+
+It's free and MIT-licensed. Source: [github.com/santosh3743/stackhealth](https://github.com/santosh3743/stackhealth).

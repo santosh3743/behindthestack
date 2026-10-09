@@ -1,0 +1,7 @@
+---
+import { SITE, LINKS } from '../data/site';
+---
+<footer class="site-footer"><div class="in">
+  <div><div class="wm">{SITE.name}</div><div class="by">{SITE.credit} · rev {SITE.rev}</div></div>
+  <div class="links">{LINKS.map((l) => <a href={l.href}>{l.label}</a>)}</div>
+</div></footer>

@@ -1,0 +1,21 @@
+---
+import type { OutStyle } from '../data/layers';
+interface Props {
+  index: number; total: number; out: OutStyle; big: string;
+  topLeft: string; topRight: string; bottomLeft: string; bottomRight: string; extraClass?: string;
+}
+const { index, total, out, big, topLeft, topRight, bottomLeft, bottomRight, extraClass = '' } = Astro.props;
+---
+<section class={`scene ${extraClass}`} id={`s${index}`} data-out={out} aria-label={topLeft}>
+  <div class="bar"><span>{topLeft}</span><span>{topRight}</span></div>
+  <div class="main">
+    <div class="big" aria-hidden="true">{big}</div>
+    <div class="copy"><slot name="copy" /></div>
+    <slot name="fig" />
+  </div>
+  <div class="bar bot">
+    <span>{bottomLeft}</span>
+    <span class="ticks" aria-hidden="true">{Array.from({ length: total }, (_, k) => <i class={k === index ? 'on' : ''} />)}</span>
+    <span>{bottomRight}</span>
+  </div>
+</section>

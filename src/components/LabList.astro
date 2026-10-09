@@ -1,0 +1,15 @@
+---
+import type { LabEntry } from '../lib/lab';
+import { partNumber } from '../lib/lab-utils';
+interface Props { entries: LabEntry[]; layerN: string }
+const { entries, layerN } = Astro.props;
+---
+<div class="list">
+  {entries.map((e) => (
+    <a href={`/lab/${e.id}/`}>
+      <span class="n">{partNumber(layerN, e.data.order)}</span>
+      <span class="t">{e.data.title}</span>
+      <span class="m">{e.data.readMinutes} min</span>
+    </a>
+  ))}
+</div>

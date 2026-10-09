@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import LabList from '../../components/LabList.astro';
+import PartsList from '../../components/PartsList.astro';
+import LayerFigure from '../../components/figures/LayerFigure.astro';
+import { LAYERS, type Layer } from '../../data/layers';
+import { getLab, labForLayer } from '../../lib/lab';
+import '../../styles/article.css';
+import '../../styles/home.css';
+
+export async function getStaticPaths() {
+  return LAYERS.map((layer) => ({ params: { layer: layer.id }, props: { layer } }));
+}
+interface Props { layer: Layer }
+const { layer } = Astro.props;
+const entries = labForLayer(await getLab(), layer.id);
+---
+<Base title={`${layer.n} ${layer.name}`} description={layer.blurb}>
+  <main class="art layer-page" id="content">
+    <header class="art-head">
+      <div><span class={layer.status === 'active' ? 'tag' : 'tag off'}>{layer.n}</span><span class="mono">{layer.name}</span></div>
+      <h1>{layer.title}</h1>
+      <p class="dek">{layer.blurb}</p>
+    </header>
+    <div class="fig"><LayerFigure id={layer.id} /><div class="cap"><span>{layer.figCaption}</span><span>{layer.figNote}</span></div></div>
+    {entries.length ? <LabList entries={entries} layerN={layer.n} />
+      : layer.parts.length ? <PartsList parts={layer.parts} />
+      : <div class="note">nothing published on this layer yet.<br />notes in progress.</div>}
+  </main>
+</Base>

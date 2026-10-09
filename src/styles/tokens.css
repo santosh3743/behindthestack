@@ -1,0 +1,9 @@
+:root{
+  --bg:#e6e4df; --paper:#eceae5; --ink:#121212; --body:#33322f; --muted:#6d6b66;
+  --rule:#c4c1b9; --line:#8f8c84; --faint:#b3b0a7; --accent:#2f5bff;
+  --sans:'Schibsted Grotesk',system-ui,sans-serif; --mono:'Martian Mono',ui-monospace,monospace;
+  --t-xs:11px; --t-m:18px; --t-l:24px;
+  --t-xl:clamp(34px,3.4vw,50px); --t-xxl:clamp(52px,7vw,100px);
+  --hh:57px; --gutter-l:72px; --gutter-r:40px;
+}
+@media (max-width:900px){ :root{ --gutter-l:16px; --gutter-r:16px; } }

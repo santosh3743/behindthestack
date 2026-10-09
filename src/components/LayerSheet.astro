@@ -1,0 +1,45 @@
+---
+import Sheet from './Sheet.astro';
+import LabList from './LabList.astro';
+import PartsList from './PartsList.astro';
+import LayerFigure from './figures/LayerFigure.astro';
+import type { Layer } from '../data/layers';
+import type { LabEntry } from '../lib/lab';
+import { partNumber } from '../lib/lab-utils';
+interface Props { layer: Layer; entries: LabEntry[]; index: number; total: number; nextLabel: string }
+const { layer, entries, index, total, nextLabel } = Astro.props;
+const flagship = entries.filter((e) => e.data.external);
+const notes = entries.filter((e) => !e.data.external);
+const off = layer.status !== 'active';
+const state = off ? layer.status : notes.length ? `${notes.length} field notes` : flagship.length ? 'flagship' : 'in progress';
+const topRight = `sheet ${layer.n} of 04 · ${state}`;
+---
+<Sheet index={index} total={total} out={layer.out} big={layer.n}
+  topLeft={`§ ${layer.n} — ${layer.name}`} topRight={topRight}
+  bottomLeft={`next ↓ ${nextLabel}`} bottomRight={`p. ${layer.n}`}>
+  <Fragment slot="copy">
+    <div data-a><span class={off ? 'tag off' : 'tag'}>{layer.n}</span><span class="mono">{layer.name}</span></div>
+    <h2 data-h>{layer.title}</h2>
+    {flagship.length === 0 && <p data-a>{layer.blurb}</p>}
+    {notes.length > 0 && <div data-a><LabList entries={notes} layerN={layer.n} /></div>}
+    {flagship.map((f) => (
+      <>
+        <div class="part" data-a>
+          <span class="mono" style="color:var(--muted)">part {partNumber(layer.n, f.data.order)} · flagship · {f.data.status === 'live' ? 'live' : 'draft'}</span>
+          <h3>{f.data.title}</h3>
+          <p>{f.data.dek}</p>
+        </div>
+        {f.data.spec && <dl class="spec" data-a style="margin-bottom:20px">{f.data.spec.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>}
+        <a class="go" data-a href={f.data.external}>{new URL(f.data.external!).host} ↗</a>
+      </>
+    ))}
+    {entries.length === 0 && (layer.parts.length
+      ? <div data-a><PartsList parts={layer.parts} /></div>
+      : <div class="note" data-a>nothing published on this layer yet.<br />notes in progress.</div>)}
+  </Fragment>
+  <div class="fig" slot="fig">
+    <LayerFigure id={layer.id} />
+    <div class="cap"><span>{layer.figCaption}</span><span>{layer.figNote}</span></div>
+    {layer.out === 'scan' && <div class="scan" aria-hidden="true" />}
+  </div>
+</Sheet>

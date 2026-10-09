@@ -1,0 +1,35 @@
+---
+import { LAYERS } from '../../data/layers';
+const SUB: Record<string, string> = { interface: 'not yet shipped', agents: 'field notes', code: 'stackhealth', infra: 'not yet documented' };
+const cx = 230, W = 260, h = 65, T = 14, gap = 176, y0 = 80;
+const P = (a: number[][]) => a.map((p) => p.join(',')).join(' ');
+const slabs = LAYERS.map((L, i) => {
+  const y = y0 + i * gap;
+  const Lp = [cx - W / 2, y], R = [cx + W / 2, y], Tp = [cx, y - h], B = [cx, y + h];
+  return {
+    i, L, y, empty: L.status !== 'active', lx: R[0] + 30, Rx: R[0],
+    sl: P([Lp, B, [B[0], B[1] + T], [Lp[0], Lp[1] + T]]),
+    sr: P([B, R, [R[0], R[1] + T], [B[0], B[1] + T]]),
+    top: P([Tp, R, B, Lp]),
+  };
+}).reverse(); // draw bottom-up so upper slabs overlap
+const dx = cx - W / 2 - 24, d1 = y0 + T, d2 = y0 + gap;
+---
+<svg id="stack" viewBox="0 0 600 720" role="img" aria-label="The stack, exploded: 01 interface, 02 agents and LLMs, 03 code, 04 infra">
+  <path d={`M${cx} 6V${y0 + 3 * gap + h + 40}`} stroke="var(--line)" stroke-dasharray="2 5" fill="none" />
+  {slabs.map((s) => (
+    <a class={`slab${s.empty ? ' empty' : ''}`} data-i={s.i} data-go={s.i + 1} href={`/#s${s.i + 1}`} aria-label={`${s.L.n} ${s.L.name}`}>
+      <polygon class="sl" points={s.sl} />
+      <polygon class="sr" points={s.sr} />
+      <polygon class="top" points={s.top} />
+      <path d={`M${s.Rx - 40} ${s.y + 10}L${s.lx} ${s.y - 14}H${s.lx + 28}`} stroke="var(--ink)" fill="none" />
+      <circle cx={s.lx + 40} cy={s.y - 14} r="12" fill={s.empty ? 'none' : 'var(--ink)'} stroke="var(--ink)" stroke-dasharray={s.empty ? '3 3' : 'none'} />
+      <text x={s.lx + 33} y={s.y - 10} font-family="Martian Mono" font-size="10" fill={s.empty ? 'var(--ink)' : 'var(--bg)'}>{s.L.n}</text>
+      <text x={s.lx + 60} y={s.y - 16} font-family="Schibsted Grotesk" font-weight="700" font-size="17" fill="var(--ink)">{s.L.name}</text>
+      <text x={s.lx + 60} y={s.y + 2} font-family="Martian Mono" font-size="10" fill="var(--muted)">{SUB[s.L.id]}</text>
+    </a>
+  ))}
+  <path d={`M${dx} ${d1}V${d2}M${dx - 6} ${d1}H${dx + 6}M${dx - 6} ${d2}H${dx + 6}`} stroke="var(--accent)" fill="none" />
+  <text x={dx - 74} y={(d1 + d2) / 2 - 4} font-family="Martian Mono" font-size="10" fill="var(--accent)">interfaces</text>
+  <text x={dx - 74} y={(d1 + d2) / 2 + 10} font-family="Martian Mono" font-size="10" fill="var(--accent)">leak here</text>
+</svg>

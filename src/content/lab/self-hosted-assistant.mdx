@@ -1,0 +1,49 @@
+---
+title: A self-hosted assistant on a 64K budget
+dek: One container, a chat front end, a knowledge-graph memory, and a provider that answered with nothing.
+layer: agents
+track: ai-agents
+order: 1
+published: 2026-10-09
+readMinutes: 3
+status: draft
+---
+
+## What was built
+
+A personal assistant that runs in a single container on a laptop. A chat app is the front end. An open-source agent framework runs the loop: plan, call a tool, read the result, repeat. Memory is a folder of linked Markdown notes the agent can read and write, a small knowledge graph on disk.
+
+The model is swappable. Some days it runs on a local model runtime. Some days it calls a hosted provider. That switch turned out to be where everything broke.
+
+## What broke
+
+### ① The context window is a floor, not a setting
+
+The framework refuses to start below a **64,000-token** context window, and it checks the window the model actually loads with, not the number in the config. With the local runtime you have to set it twice: once to tell the runtime to load the model with a 64K window, and once to tell the agent what to expect. Set only one and the agent either refuses to start or quietly truncates.
+
+On a machine with **16 GB** of memory, a mandatory 64K window rules out the 20B and 30B models outright. Roughly **8B** parameters is the practical ceiling. A 1.7B model fits easily and fails at the job: it can't hold a multi-step tool loop together.
+
+### ② An empty reply with no error
+
+Pointed at the hosted provider with an older model ID, the agent returned nothing. No error, no stack trace, no partial answer: just "no final response was produced".
+
+The key worked. The raw API worked. The framework only recognised a curated list of newer models, and for anything else it couldn't resolve the model's context metadata. Without that it gave up silently. Switching to a newer model fixed it instantly.
+
+Two things made this slow to find:
+
+- The one-shot command mode redirects all logging away, so the failure leaves no trace. Reproducing it through the long-running gateway, which does log, is what surfaced it.
+- A manual probe with `curl` returned **HTTP 400** `unsupported_parameter`, which reads like "this key has no access". It doesn't mean that. Newer models reject `max_tokens` and require `max_completion_tokens`. The probe was wrong, not the account.
+
+### ③ The GPU crash that looks like a model bug
+
+On the laptop, the local runtime occasionally crashes compiling a GPU shader. The agent sees it as a dead model. The fix is a restart of the runtime, not a change to the agent. Knowing which layer to restart saves an evening.
+
+## The number
+
+**64,000** tokens. Every decision downstream (which models fit, which machine is enough, which provider works) fell out of that one floor.
+
+## What I'd do again
+
+- Read the framework's model list before reading the provider's.
+- Debug through the path that logs. One-shot modes are for when it already works.
+- Treat a silent empty response as a configuration error until proven otherwise. It almost always is.
